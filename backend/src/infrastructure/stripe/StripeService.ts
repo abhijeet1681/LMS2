@@ -1,10 +1,22 @@
 import Stripe from "stripe";
 import { config } from "../config/config";
 import { IPaymentService } from "../../application/repositories/IPaymentService";
-const stripe = new Stripe(config.stripe.STRIPE_SECRET_KEY!, { apiVersion: "2024-12-18.acacia" });
+
+// Initialize Stripe only if API key is available
+let stripe: Stripe | null = null;
+
+if (config.stripe.STRIPE_SECRET_KEY) {
+    stripe = new Stripe(config.stripe.STRIPE_SECRET_KEY, { apiVersion: "2024-12-18.acacia" });
+} else {
+    console.warn('Stripe API key not found. Payment functionality will be disabled.');
+}
 
 export class StripeService implements IPaymentService{
  async createCheckOutSession (orderId: string, courses: any[], userId: string, uniqueOrderId:string) : Promise<string> {
+    if (!stripe) {
+        throw new Error('Stripe is not configured. Please add STRIPE_SECRET_KEY to your environment variables.');
+    }
+
     const lineItems = courses.map((course)=> ({
         price_data :  {
             currency: 'inr',
@@ -51,6 +63,10 @@ export class StripeService implements IPaymentService{
  }
 
  async retrieveSession (sessionId: string) : Promise<any> {
+    if (!stripe) {
+        throw new Error('Stripe is not configured. Please add STRIPE_SECRET_KEY to your environment variables.');
+    }
+
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     console.log("Retrieved checkout session:", session);
 

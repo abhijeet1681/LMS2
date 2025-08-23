@@ -1,28 +1,45 @@
-import { NextFunction, Request, Response } from "express";
-import { CertificateRepository } from "../../../../infrastructure/repositories/certificateRepository";
-import { CustomError } from "../../../middlewares/errorMiddleWare";
+import { Request, Response, NextFunction } from 'express';
+import { CertificateRepository } from '../../../../infrastructure/repositories/certificateRepository';
+import { CustomError } from '../../../middlewares/errorMiddleWare';
 
 const certificateRepository = new CertificateRepository();
 
-export const getCertificateController = async (
+export const generateCertificateController = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        const { certificateId } = req.params;
-        if (!certificateId) throw new CustomError("Certificate ID is required", 400);
+        const user = req.user;
+        const { courseId } = req.body;
+        
+        if (!user) throw new CustomError("User not found", 401);
+        if (!courseId) throw new CustomError("Course ID is required", 400);
 
-        const certificate = await certificateRepository.getCertificateById(certificateId);
-        if (!certificate) {
-            throw new CustomError("Certificate not found", 404);
+        // Check if certificate already exists
+        const existingCertificate = await certificateRepository.getCertificateByUserAndCourse(user.id, courseId);
+        if (existingCertificate) {
+            return res.status(200).json({
+                success: true,
+                data: existingCertificate,
+                message: "Certificate already exists"
+            });
         }
 
-        if (!certificate.isValid) {
-            throw new CustomError("This certificate has been revoked", 400);
-        }
+        // Create new certificate
+        const certificate = await certificateRepository.createCertificate({
+            userId: user.id,
+            courseId: courseId,
+            studentName: `${user.firstName} ${user.lastName}`,
+            courseName: "Course Name", // This should be fetched from course data
+            instructorName: "Instructor Name", // This should be fetched from course data
+            completionDate: new Date(),
+            finalScore: 100, // This should be calculated from quiz results
+            isValid: true,
+            downloadCount: 0
+        });
 
-        res.status(200).json({
+        res.status(201).json({
             success: true,
             data: certificate
         });
@@ -119,6 +136,7 @@ export const verifyCertificateController = async (
                 finalScore: certificate.finalScore
             }
         });
-    } catch (error) {\n        next(error);
+    } catch (error) {
+        next(error);
     }
 };

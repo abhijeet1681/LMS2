@@ -1,97 +1,70 @@
-import axiosInstance from './axiosInstance';
+import api from "@/axios/auth/authInterceptors";
 
-export interface ChatbotMessage {
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-}
-
-export interface ChatbotRequest {
-  message: string;
-  sessionId?: string;
-  context?: {
-    courseId?: string;
-    currentPage?: string;
-  };
-}
-
-export interface ChatbotResponse {
-  sessionId: string;
-  response: string;
-  context?: any;
-}
-
-export interface ConversationHistory {
-  sessionId: string;
-  messages: ChatbotMessage[];
-}
-
-// Send a message to the chatbot
-export const sendChatbotMessage = async (request: ChatbotRequest): Promise<ChatbotResponse> => {
+export const sendChatbotMessage = async (request) => {
   try {
-    const response = await axiosInstance.post('/chatbot/message', request);
+    const response = await api.post('/chatbot/message', request);
     return response.data.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error sending chatbot message:', error);
     throw new Error(error.response?.data?.error || 'Failed to send message');
   }
 };
 
 // Get conversation history
-export const getConversationHistory = async (sessionId: string): Promise<ChatbotMessage[]> => {
+export const getConversationHistory = async (sessionId) => {
   try {
-    const response = await axiosInstance.get(`/chatbot/conversations/${sessionId}/history`);
+    const response = await api.get(`/chatbot/conversations/${sessionId}/history`);
     return response.data.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error fetching conversation history:', error);
     throw new Error(error.response?.data?.error || 'Failed to fetch conversation history');
   }
 };
 
 // End a conversation
-export const endConversation = async (sessionId: string): Promise<void> => {
+export const endConversation = async (sessionId) => {
   try {
-    await axiosInstance.delete(`/chatbot/conversations/${sessionId}`);
-  } catch (error: any) {
+    await api.delete(`/chatbot/conversations/${sessionId}`);
+  } catch (error) {
     console.error('Error ending conversation:', error);
     throw new Error(error.response?.data?.error || 'Failed to end conversation');
   }
 };
 
 // Get user conversations
-export const getUserConversations = async (limit?: number): Promise<ConversationHistory[]> => {
+export const getUserConversations = async (limit) => {
   try {
-    const response = await axiosInstance.get('/chatbot/conversations', {
+    const response = await api.get('/chatbot/conversations', {
       params: { limit }
     });
     return response.data.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error fetching user conversations:', error);
     throw new Error(error.response?.data?.error || 'Failed to fetch conversations');
   }
 };
 
 // Admin only - Clean up old conversations
-export const cleanupOldConversations = async (days: number = 30): Promise<any> => {
+export const cleanupOldConversations = async (days = 30) => {
   try {
-    const response = await axiosInstance.delete('/chatbot/admin/cleanup', {
+    const response = await api.delete('/chatbot/admin/cleanup', {
       params: { days }
     });
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error cleaning up conversations:', error);
     throw new Error(error.response?.data?.error || 'Failed to cleanup conversations');
   }
 };
 
 // Admin only - Get chatbot analytics
-export const getChatbotAnalytics = async (days: number = 30): Promise<any> => {
+export const getChatbotAnalytics = async (days = 30) => {
   try {
-    const response = await axiosInstance.get('/chatbot/admin/analytics', {
+    const response = await api.get('/chatbot/admin/analytics', {
       params: { days }
     });
     return response.data.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error fetching chatbot analytics:', error);
     throw new Error(error.response?.data?.error || 'Failed to fetch analytics');
   }

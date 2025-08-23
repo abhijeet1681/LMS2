@@ -1,35 +1,27 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { RootState } from '../../store/store';
-import { sendChatbotMessage, getConversationHistory, endConversation, ChatbotMessage } from '../../api/chatbotApi';
+import { sendChatbotMessage, getConversationHistory, endConversation } from '../../api/chatbotApi';
 import { toast } from 'react-toastify';
 import { useLocation } from 'react-router-dom';
 import './Chatbot.css';
 
-interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-}
-
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
   
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { user } = useSelector((state) => state.auth);
   const location = useLocation();
 
   // Get current page context
   const getCurrentContext = () => {
     const path = location.pathname;
-    const context: any = {
+    const context = {
       currentPage: path
     };
 
@@ -71,7 +63,7 @@ const Chatbot = () => {
   // Initialize chatbot when opened
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      const welcomeMessage: ChatMessage = {
+      const welcomeMessage = {
         id: Date.now().toString(),
         role: 'assistant',
         content: getWelcomeMessage(),
@@ -115,7 +107,7 @@ const Chatbot = () => {
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
-    const userMessage: ChatMessage = {
+    const userMessage = {
       id: Date.now().toString(),
       role: 'user',
       content: inputValue.trim(),
@@ -139,7 +131,7 @@ const Chatbot = () => {
         setSessionId(response.sessionId);
       }
 
-      const botMessage: ChatMessage = {
+      const botMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: response.response,
@@ -147,9 +139,9 @@ const Chatbot = () => {
       };
 
       setMessages(prev => [...prev, botMessage]);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Chatbot error:', error);
-      const errorMessage: ChatMessage = {
+      const errorMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: "I'm sorry, I'm having trouble responding right now. Please try again in a moment, or contact our support team at support@learnlab.com if the issue persists.",
@@ -163,7 +155,7 @@ const Chatbot = () => {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -183,7 +175,7 @@ const Chatbot = () => {
     setMessages([]);
   };
 
-  const formatTime = (timestamp: Date) => {
+  const formatTime = (timestamp) => {
     return new Date(timestamp).toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit'
@@ -191,7 +183,7 @@ const Chatbot = () => {
   };
 
   // Format message content with markdown-like formatting
-  const formatMessageContent = (content: string) => {
+  const formatMessageContent = (content) => {
     // Convert **text** to bold
     let formatted = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     
@@ -234,7 +226,7 @@ const Chatbot = () => {
     return actions[role] || actions.student;
   };
 
-  const handleQuickAction = (action: string) => {
+  const handleQuickAction = (action) => {
     setInputValue(action);
     // Auto-send the quick action
     setTimeout(() => {

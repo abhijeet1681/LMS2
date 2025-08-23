@@ -4,11 +4,24 @@ import { OrderRepository } from "../../../../infrastructure/repositories/orderRe
 import { config } from "../../../../infrastructure/config/config";
 import { CourseRepositoryClass } from "../../../../infrastructure/repositories/courseRepository";
 
-const stripe = new Stripe(config.stripe.STRIPE_SECRET_KEY!, { apiVersion: "2024-12-18.acacia" });
+// Initialize Stripe only if API key is available
+let stripe: Stripe | null = null;
+
+if (config.stripe.STRIPE_SECRET_KEY) {
+    stripe = new Stripe(config.stripe.STRIPE_SECRET_KEY, { apiVersion: "2024-12-18.acacia" });
+} else {
+    console.warn('Stripe API key not found. Webhook functionality will be disabled.');
+}
+
 const orderRepository = new OrderRepository();
 const courseRepository = new CourseRepositoryClass();
 
 export const handleWebhook = async (req: Request, res: Response): Promise<void> => {
+    if (!stripe) {
+        console.error('Stripe is not configured. Webhook cannot be processed.');
+        res.status(500).send('Stripe is not configured');
+        return;
+    }
    
     const signature = req.headers["stripe-signature"]!;
     const webhookSecret = config.stripe.STRIPE_WEBHOOK_SECRET!;
@@ -99,17 +112,14 @@ const handlePaymentFailed = async (event: Stripe.Event): Promise<void> => {
         return;
     }
 
-    // Update the order in the database to reflect payment failure
-    const order = await orderRepository.getOrderById(orderId);
-    if (!order) {
-        console.error(`Order with ID ${orderId} not found.`);
-        return;
+    // Update the order status to failed
+    try {
+        await orderRepository.updateOrder(orderId, {
+            paymentStatus: "failed",
+            transactionId: paymentIntent.id,
+        });
+        console.log(`Order ${orderId} marked as failed.`);
+    } catch (error) {
+        console.error(`Failed to update order ${orderId}:`, error);
     }
-
-    await orderRepository.updateOrder(order.orderId, {
-        paymentStatus: "failed",
-        paymentDate: new Date(),
-    });
-
-    console.log(`Order ${order.orderId} marked as failed due to payment failure.`);
 };

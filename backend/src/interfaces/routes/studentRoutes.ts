@@ -10,7 +10,7 @@ import { streamVideoController } from "../controllers/student/course/videoStream
 import { addToWishlistController, deleteFromWishlistController, getWishlistController, getWishlistCountController } from "../controllers/student/wishlist/wishlistController";
 import { addRatingController, deleteRatingController, getCourseRatingsController, updateRatingController } from "../controllers/student/course/ratingController";
 import { getQuizForCourseController, submitQuizController, getUserQuizAttemptsController, checkQuizEligibilityController } from "../controllers/student/course/quizController";
-import { getCertificateController, getUserCertificatesController, downloadCertificateController, verifyCertificateController } from "../controllers/student/certificate/certificateController";
+import { generateCertificateController, getUserCertificatesController, downloadCertificateController, verifyCertificateController } from "../controllers/student/certificate/certificateController";
 
 const router = Router();
 
@@ -61,7 +61,7 @@ router.use(isAuthenticated, authorizeRole(['student','instructor']))
 //certificate routes
 router.use(isAuthenticated, authorizeRole(['student','instructor']))
     .get('/certificates', getUserCertificatesController)
-    .get('/certificate/:certificateId', getCertificateController)
+    .post('/certificate/generate', generateCertificateController)
     .get('/certificate/:certificateId/download', downloadCertificateController)
 
 //public certificate verification (no auth required)
