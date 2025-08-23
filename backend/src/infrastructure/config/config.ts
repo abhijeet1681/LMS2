@@ -44,10 +44,18 @@ export interface CloudinaryConfig {
     API_KEY?: string,
     API_SECRET?: string
 }
+
 export interface StripeConfig {
     STRIPE_PUBLISHABLE_KEY? : string,
     STRIPE_SECRET_KEY ?:string,
     STRIPE_WEBHOOK_SECRET?: string
+}
+
+export interface OpenAIConfig {
+    OPENAI_API_KEY?: string;
+    OPENAI_MODEL?: string;
+    OPENAI_MAX_TOKENS?: number;
+    OPENAI_TEMPERATURE?: number;
 }
 
 export interface Config {
@@ -59,7 +67,8 @@ export interface Config {
     email: EmailConfig;
     session: SessionConfig;
     cloudinary : CloudinaryConfig;
-    stripe: StripeConfig
+    stripe: StripeConfig;
+    openai: OpenAIConfig;
 }
 
 
@@ -109,5 +118,11 @@ export const config : Config = {
         STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
         STRIPE_SECRET_KEY : process.env.STRIPE_SECRET_KEY,
         STRIPE_WEBHOOK_SECRET : process.env.STRIPE_WEBHOOK_SECRET
+    },
+    openai: {
+        OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+        OPENAI_MODEL: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
+        OPENAI_MAX_TOKENS: parseInt(process.env.OPENAI_MAX_TOKENS || '400'),
+        OPENAI_TEMPERATURE: parseFloat(process.env.OPENAI_TEMPERATURE || '0.7')
     }
 }
