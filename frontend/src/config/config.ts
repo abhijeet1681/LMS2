@@ -2,7 +2,7 @@
 
 export const config = {
     app: {
-      PORT: import.meta.env.VITE_API_URL ||  'http://localhost:5000/api',
+      PORT: import.meta.env.VITE_API_URL ||  'http://localhost:5000',
       //environment: process.env.NODE_ENV || 'development',
       BASE_URL : import.meta.env.VITE_BASE_URL ||  'http://localhost:5000',
     },

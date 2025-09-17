@@ -342,10 +342,11 @@ const Chatbot = () => {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Type your message... (Press Enter to send)"
+                placeholder="Type your message..."
                 disabled={isLoading}
                 rows={1}
                 maxLength={500}
+                style={{ color: 'black' }}
               />
               <button 
                 onClick={handleSendMessage} 
@@ -373,3 +374,4 @@ const Chatbot = () => {
 };
 
 export default Chatbot;
+

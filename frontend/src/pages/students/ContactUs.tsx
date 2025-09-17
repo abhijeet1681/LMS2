@@ -10,23 +10,23 @@ const ContactUs: React.FC = () => {
     {
       icon: <Mail className="h-6 w-6" />,
       title: "Email Support",
-      value: "support@learnlab.com",
+      value: "jabhijeet9274@gmail.com",
       description: "Get in touch with our support team",
-      link: "mailto:support@learnlab.com"
+      link: "mailto:jabhijeet9274@gmail.com"
     },
     {
       icon: <Phone className="h-6 w-6" />,
       title: "Phone Support",
-      value: "+026 2020202",
+      value: "+91 8108255374",
       description: "Call us during business hours",
-      link: "tel:+0262020202"
+      link: "tel:+91 8108255374"
     },
     {
       icon: <MapPin className="h-6 w-6" />,
       title: "Office Address",
-      value: "Kerala, India",
+      value: "Mumbai, India",
       description: "Visit our headquarters",
-      link: "#"
+      link: "https://maps.app.goo.gl/5gj7tGqspu5yrcrM9"
     }
   ];
 
